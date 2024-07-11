@@ -38,15 +38,16 @@
   "dependencies": {
     "strip-indent": "^4.0.0",
     "to-gatsby-remark-plugin": "^0.1.0",
-    "unist-util-visit": "^4.1.0"
+    "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
+    "@types/mdast": "^4.0.4",
     "@types/node": "^18.19.39",
-    "mdast": "^3.0.0",
     "prettier": "2.5.1",
-    "remark": "^14.0.2",
+    "remark": "^15.0.1",
     "typescript": "5.5.3",
-    "vfile": "^5.3.0",
+    "unified": "^11.0.5",
+    "vfile": "^6.0.1",
     "vitest": "^2.0.2"
   },
   "prettier": {

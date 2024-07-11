@@ -3,8 +3,9 @@ import path from 'node:path';
 import { EOL } from 'node:os';
 import { visit } from 'unist-util-visit';
 import stripIndent from 'strip-indent';
-import type { Root, Code, Parent } from 'mdast';
+import type { Node, Code, Parent } from 'mdast';
 import type { VFile } from 'vfile';
+import type { Plugin } from 'unified';
 
 interface CodeImportOptions {
   async?: boolean;
@@ -36,15 +37,15 @@ function extractLines(
   return lines.slice(start - 1, end).join('\n');
 }
 
-function codeImport(options: CodeImportOptions = {}) {
+const codeImport: Plugin<[CodeImportOptions]> = (options = {}) => {
   const rootDir = options.rootDir || process.cwd();
 
   if (!path.isAbsolute(rootDir)) {
     throw new Error(`"rootDir" has to be an absolute path`);
   }
 
-  return function transformer(tree: Root, file: VFile) {
-    const codes: [Code, number | null, Parent][] = [];
+  return function transformer(tree: Node, file: VFile): Promise<void> | void {
+    const codes: [Code, number | undefined, Parent][] = [];
     const promises: Promise<void>[] = [];
 
     visit(tree, 'code', (node, index, parent) => {
@@ -136,10 +137,10 @@ function codeImport(options: CodeImportOptions = {}) {
     }
 
     if (promises.length) {
-      return Promise.all(promises);
+      return Promise.all(promises).then();
     }
   };
-}
+};
 
 export { codeImport };
 export default codeImport;

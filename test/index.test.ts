@@ -148,7 +148,7 @@ test('Remove redundant indentations', () => {
 test('Allow escaped spaces in paths', () => {
   expect(
     remark()
-      .use(codeImport)
+      .use([codeImport])
       .processSync(
         vfile(`
 \`\`\`js file=./__fixtures__/filename\\ with\\ spaces.js
@@ -168,7 +168,7 @@ describe('options.rootDir', () => {
   test('Defaults to process.cwd()', () => {
     expect(
       remark()
-        .use(codeImport)
+        .use([codeImport])
         .processSync(
           vfile(`
 \`\`\`js file=<rootDir>/__fixtures__/say-#-hi.js#L1
@@ -222,7 +222,7 @@ describe('options.allowImportingFromOutside', () => {
   test('defaults to throw when importing from outside', () => {
     expect(() => {
       remark()
-        .use(codeImport)
+        .use([codeImport])
         .processSync(
           vfile(`
 \`\`\`js file=../some-file
