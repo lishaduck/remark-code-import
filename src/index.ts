@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { EOL } from 'node:os';
 import { visit } from 'unist-util-visit';
@@ -8,7 +8,6 @@ import type { VFile } from 'vfile';
 import type { Plugin } from 'unified';
 
 interface CodeImportOptions {
-  async?: boolean;
   preserveTrailingNewline?: boolean;
   removeRedundantIndentations?: boolean;
   rootDir?: string;
@@ -44,7 +43,7 @@ const codeImport: Plugin<[CodeImportOptions]> = (options = {}) => {
     throw new Error(`"rootDir" has to be an absolute path`);
   }
 
-  return function transformer(tree: Node, file: VFile): Promise<void> | void {
+  return async function transformer(tree: Node, file: VFile): Promise<void> {
     const codes: [Code, number | undefined, Parent][] = [];
     const promises: Promise<void>[] = [];
 
@@ -97,47 +96,28 @@ const codeImport: Plugin<[CodeImportOptions]> = (options = {}) => {
         }
       }
 
-      if (options.async) {
-        promises.push(
-          new Promise<void>((resolve, reject) => {
-            fs.readFile(fileAbsPath, 'utf8', (err, fileContent) => {
-              if (err) {
-                reject(err);
-                return;
-              }
+      promises.push(
+        (async () => {
+          const fileContent = await fsp.readFile(fileAbsPath, 'utf8');
 
-              node.value = extractLines(
-                fileContent,
-                fromLine,
-                hasDash,
-                toLine,
-                options.preserveTrailingNewline
-              );
-              if (options.removeRedundantIndentations) {
-                node.value = stripIndent(node.value);
-              }
-              resolve();
-            });
-          })
-        );
-      } else {
-        const fileContent = fs.readFileSync(fileAbsPath, 'utf8');
-
-        node.value = extractLines(
-          fileContent,
-          fromLine,
-          hasDash,
-          toLine,
-          options.preserveTrailingNewline
-        );
-        if (options.removeRedundantIndentations) {
-          node.value = stripIndent(node.value);
-        }
-      }
+          node.value = extractLines(
+            fileContent,
+            fromLine,
+            hasDash,
+            toLine,
+            options.preserveTrailingNewline
+          );
+          if (options.removeRedundantIndentations) {
+            node.value = stripIndent(node.value);
+          }
+        })()
+      );
     }
 
     if (promises.length) {
-      return Promise.all(promises).then();
+      await Promise.all(promises);
+
+      return;
     }
   };
 };
