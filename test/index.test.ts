@@ -157,7 +157,7 @@ test('Allow escaped spaces in paths', () => {
       )
       .toString()
   ).toMatchInlineSnapshot(`
-    "\`\`\`js file=./__fixtures__/filename\\\\ with\\\\ spaces.js
+    "\`\`\`js file=./__fixtures__/filename\\ with\\ spaces.js
     console.log('filename with spaces');
     \`\`\`
     "
